@@ -2,16 +2,17 @@ import os
 from typing import List, Literal
 import openai 
 from openai.openai_object import OpenAIObject
+from languages import SupportedLanguages
 
 
 class TranslationEngine:
     def __init__(
             self, 
-            languages: List[str], 
+            countries: List[str], 
             engine = Literal["OpenAi", "Google"]
         ) -> None:
 
-        self.languages = languages
+        self.countries = countries
         self.engine = engine
 
         if self.engine == "OpenAi":
@@ -43,9 +44,23 @@ class TranslationEngine:
         return self._process_openai_response(response)
     
     def translate_with_openai(self, text: str, target_language):
-        # Set up the context for translation
+        # Set up the context for translation - change to template later
         context = f"Translate the following English text to {target_language}:"
         
         # Call the OpenAI API
-        translated_text = self.get_chat_response(context, text)
+        translated_text = self.get_openai_response(context, text)
         return translated_text
+    
+    def translate_with_google(self, text: str, target_language):
+        raise NotImplementedError("Google translation engine not implemented yet.")
+
+    def generate_translations(self, text: str):
+        """Generate translations for all supported languages."""
+
+        translations = {}
+        for country in self.countries:
+            language = SupportedLanguages.REFERENCE.get(country)
+            header_key = f"{country} ({language})"
+            translations[header_key] = self.translate_with_openai(text, language)
+        
+        return translations
