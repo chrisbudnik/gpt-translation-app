@@ -43,7 +43,7 @@ class TranslationEngine:
             )
         return self._process_openai_response(response)
     
-    def translate_with_openai(self, text: str, target_language):
+    def translate_with_openai(self, text: str, target_language: str):
         # Set up the context for translation - change to template later
         context = f"Translate the following English text to {target_language}:"
         
@@ -61,6 +61,14 @@ class TranslationEngine:
         for country in self.countries:
             language = SupportedLanguages.REFERENCE.get(country)
             header_key = f"{country} ({language})"
-            translations[header_key] = self.translate_with_openai(text, language)
+
+            if self.engine == "OpenAi":
+                translations[header_key] = self.translate_with_openai(text, language)
+            
+            if self.engine == "Google":
+                translations[header_key] = self.translate_with_google(text, language)
+            
+            else:
+                raise NotImplementedError("Translation engine not implemented yet.")
         
         return translations
