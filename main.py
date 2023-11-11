@@ -1,7 +1,10 @@
 import streamlit as st
+import os
 import time
+import hmac
 from languages import SupportedLanguages
 from translation_engine import TranslationEngine
+from database import check_latest_campaigns, save_translations_to_bigquery
 
 def translation_page():
     st.title("Translate Sales Copy")
@@ -42,8 +45,17 @@ def translation_page():
                 st.write(translation)
 
 def upload_page():
-    st.title("Upload Sales Copy")
+    st.title("Upload to Database")
     st.write("Upload your marketing copy to database.")
+
+
+    campaign_name = st.text_input("Enter campaign name")
+
+    if st.toggle("Check lates campaign name"):
+        if st.button("Check"):
+            campaign_name_suggestion = check_latest_campaigns()
+            st.write(f"Lates campaign found: {campaign_name_suggestion}")
+
 
     supported_countries = SupportedLanguages.REFERENCE.keys()
     selected_countries = st.multiselect("Choose country languages for upload", supported_countries)
@@ -55,25 +67,63 @@ def upload_page():
 
         sales_copy_upload[country] = st.text_area(f"{language}")
 
-    if st.button("Upload"):
-        if not sales_copy_upload.values():
-            st.warning("Please select countries and enter sales copy to upload.")
-
-        with st.status("Uploading data...", expanded=True):
-            st.write("Searching for data...")
-            time.sleep(2)
-            st.write("Found URL.")
-            time.sleep(1)
-            st.write("Downloading data...")
-            time.sleep(1)
-
-        st.success("Data successfully uploaded.")
-
     #Formating helper
     st.write(sales_copy_upload)
 
+    # Upload to database
+    if st.button("Upload"):
+        # Check if all fields are filled
+        if not selected_countries:
+            st.warning("Please select countries to upload.")
+            st.stop()
 
+        if not all(sales_copy_upload.values()):
+            st.warning("Enter sales copy for all countries before uploading.")
+            st.stop()
 
+        with st.status("Uploading data...", expanded=True):
+            st.write("Preparing data...")
+            time.sleep(1)
+            st.write("Uploading to database...")
+            save_translations_to_bigquery(campaign_name, sales_copy_upload)
+
+        st.success("Data successfully uploaded.")
+
+# Page config
+st.set_page_config(
+    page_title='marketing automation', 
+    )
+
+# Transform into get environment variable GLOBAL_PASSWORD
+password = os.getenv("GLOBAL_PASSWORD")
+
+# Check password func with state management
+def check_password():
+    """Returns `True` if the user had the correct password."""
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if hmac.compare_digest(st.session_state["password"], password):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  
+        else:
+            st.session_state["password_correct"] = False
+
+    # Return True if the passward is validated.
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # Show input for password.
+    st.text_input(
+        "Password", type="password", on_change=password_entered, key="password"
+    )
+    if "password_correct" in st.session_state:
+        st.error("😕 Password incorrect")
+    return False
+
+# Do not continue if check_password is not True.
+if not check_password():
+    st.stop() 
 
 # UI definitions
     
