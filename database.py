@@ -22,6 +22,11 @@ def check_latest_campaigns() -> str:
             1
     """
     query_result: pd.DataFrame = bigquery_client.query(query).to_dataframe()
+
+    # if no campaigns found
+    if query_result.empty:
+        return "No campaigns found"
+    
     return query_result["campaign_name"].values[0]
 
 
@@ -42,7 +47,7 @@ def save_to_bigquery(translation: Tuple) -> None:
 
 def save_translations_to_bigquery(
         campaign_name: str,
-        translations_upload: Dict[str: str]
+        translations_upload: dict[str: str]
     ) -> None:
     """Save translations to BigQuery."""
 
