@@ -10,7 +10,7 @@ class SupportedLanguages:
         "IT": "Italian",
         'RO': 'Romanian',
         "CZ": "Czech",
-        "Sk": "Slovak",
+        "SK": "Slovak",
         "RU": "Russian",
         "UA": "Ukrainian",
         "EE": "Estonian",
