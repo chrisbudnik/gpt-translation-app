@@ -9,7 +9,7 @@ class TranslationEngine:
     def __init__(
             self, 
             countries: List[str], 
-            engine = Literal["OpenAi", "Google"]
+            engine = Literal["OpenAI", "Google"]
         ) -> None:
 
         self.countries = countries
@@ -43,7 +43,7 @@ class TranslationEngine:
             )
         return self._process_openai_response(response)
     
-    def translate_with_openai(self, text: str, target_language: str):
+    def translate_with_openai(self, text: str, target_language: str) -> str:
         # Set up the context for translation - change to template later
         context = f"Translate the following English text to {target_language}:"
         
@@ -62,13 +62,13 @@ class TranslationEngine:
             language = SupportedLanguages.REFERENCE.get(country)
             header_key = f"{country} ({language})"
 
-            if self.engine == "OpenAi":
+            if self.engine == "OpenAI":
                 translations[header_key] = self.translate_with_openai(text, language)
             
-            if self.engine == "Google":
+            elif self.engine == "Google":
                 translations[header_key] = self.translate_with_google(text, language)
             
             else:
-                raise NotImplementedError("Translation engine not implemented yet.")
+                raise NotImplementedError(f"Translation engine not implemented yet.")
         
         return translations
