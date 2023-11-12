@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 from google.cloud import bigquery
 from config import Config
+from auth import grant_access
 
 
 def check_latest_campaigns() -> str:
@@ -44,10 +45,10 @@ def save_to_bigquery(translation: Tuple) -> None:
     table = bigquery_client.get_table(config.BIGQEURY_MARKETING_TABLE_ID)
     bigquery_client.insert_rows_json(table, [translation])
 
-
+@grant_access
 def save_translations_to_bigquery(
         campaign_name: str,
-        translations_upload: dict[str: str]
+        translations_upload: dict[str: str],
     ) -> None:
     """Save translations to BigQuery."""
 
