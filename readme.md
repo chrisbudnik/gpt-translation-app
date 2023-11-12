@@ -1,11 +1,11 @@
 # Marketing Automation Tool
 *Automated sales copy translation and database upload*
 
-## Project Overview
+## 🔍 Project Overview
 
 The Marketing Copy Translation and Upload Tool is designed to streamline the process for marketers and copywriters to translate and upload their marketing content into a database. This tool stands out with its integration of advanced language models for translation and a user-friendly interface developed using Streamlit.
 
-### Key Functionalities
+## 🛠️ Key Functionalities
 
 #### Translation of Marketing Copy
 
