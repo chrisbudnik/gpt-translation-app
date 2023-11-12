@@ -2,9 +2,11 @@ import streamlit as st
 import os
 import time
 import hmac
+from config import Config
 from languages import SupportedLanguages
 from translation_engine import TranslationEngine
 from database import check_latest_campaigns, save_translations_to_bigquery
+
 
 def translation_page():
     st.title("Translate Sales Copy")
@@ -68,7 +70,12 @@ def upload_page():
         sales_copy_upload[country] = st.text_area(f"{language}")
 
     #Formating helper
-    st.write(sales_copy_upload)
+    if st.toggle("Preview export JSON data"):
+        st.write(sales_copy_upload)
+
+    if not user_token:
+        st.warning("Please enter your user token to preceed with upload.")
+        st.stop()
 
     # Upload to database
     if st.button("Upload"):
@@ -82,10 +89,17 @@ def upload_page():
             st.stop()
 
         with st.status("Uploading data...", expanded=True):
-            st.write("Preparing data...")
+            st.write("Checking access policy...")
             time.sleep(1)
+
             st.write("Uploading to database...")
-            save_translations_to_bigquery(campaign_name, sales_copy_upload)
+
+            save_translations_to_bigquery(
+                campaign_name=campaign_name, 
+                translations_upload=sales_copy_upload,
+                token=user_token,
+                details=sales_copy_upload
+            )
 
         st.success("Data successfully uploaded.")
 
