@@ -3,6 +3,7 @@ from typing import List, Literal
 import openai 
 from openai.openai_object import OpenAIObject
 from languages import SupportedLanguages
+from google.cloud import translate_v2 as translate
 
 
 class TranslationEngine:
@@ -20,7 +21,7 @@ class TranslationEngine:
             openai.api_key = self.api_key
 
         if self.engine == "Google":
-            raise NotImplementedError("Google translation engine not implemented yet.")
+            self.translate_client = translate.Client()
 
     @staticmethod
     def _process_openai_response(response: OpenAIObject) -> str:
@@ -44,6 +45,8 @@ class TranslationEngine:
         return self._process_openai_response(response)
     
     def translate_with_openai(self, text: str, target_language: str) -> str:
+        """Translate text with openai API."""
+
         # Set up the context for translation - change to template later
         context = f"Translate the following English text to {target_language}:"
         
@@ -52,9 +55,12 @@ class TranslationEngine:
         return translated_text
     
     def translate_with_google(self, text: str, target_language):
-        raise NotImplementedError("Google translation engine not implemented yet.")
+        """Translate text with google translate API."""
 
-    def generate_translations(self, text: str):
+        result = self.translate_client.translate(text, target_language)
+        return result['translatedText']
+
+    def generate_translations(self, text: str) -> dict:
         """Generate translations for all supported languages."""
 
         translations = {}
@@ -66,7 +72,7 @@ class TranslationEngine:
                 translations[header_key] = self.translate_with_openai(text, language)
             
             elif self.engine == "Google":
-                translations[header_key] = self.translate_with_google(text, language)
+                translations[header_key] = self.translate_with_google(text, country)
             
             else:
                 raise NotImplementedError(f"Translation engine not implemented yet.")
