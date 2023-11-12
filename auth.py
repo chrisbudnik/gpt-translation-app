@@ -24,16 +24,17 @@ def grant_access(func):
         headers = {
             "user_token": token,
             "service_name": Config.SERVICE_NAME,
+            "functionality_name": "upload_to_database",
             "permission_name": "USER" # only one type of permission for this service
         }
 
-        r = requests.post(
-            url=Config.AUTH_SERVICE_URL,
-            headers=headers,
-            json=details
-        )
-
         if Config.AUTH_VALIDATION_ON:
+            # Create a POST request to the Authentication Service
+            r = requests.post(
+                url=Config.AUTH_SERVICE_URL,
+                headers=headers,
+                json=details
+            )
             response = r.json()
             access: dict = response.get("permission_granted", False) if r.status_code == 200 else False
 
@@ -47,3 +48,5 @@ def grant_access(func):
         return st.error("You do not have access to this resource")
 
     return wrapper
+
+
