@@ -4,8 +4,9 @@ import streamlit as st
 class Config:
 
     SERVICE_NAME = "marketing-translator"
+    AUTH_SERVICE_URL = "https://my-custom-auth-service.com/grant_access"
+    AUTH_VALIDATION_ON = False # turned of for testing purposes
     BIGQEURY_MARKETING_TABLE_ID = "chris-sandbox-2023.apps.marketing_translations"
-
 
 
     def __init__(self) -> None:
@@ -21,4 +22,6 @@ class Config:
 
         if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
             st.error("Please set your GOOGLE_APPLICATION_CREDENTIALS environment variable.")
+
+    #TODO: method to check service account permissions to use google vertex ai
         
