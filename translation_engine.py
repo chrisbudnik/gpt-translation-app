@@ -4,6 +4,7 @@ import openai
 from openai.openai_object import OpenAIObject
 from languages import SupportedLanguages
 from google.cloud import translate_v2 as translate
+from google.cloud import aiplatform
 
 
 class TranslationEngine:
@@ -57,8 +58,10 @@ class TranslationEngine:
     def translate_with_google(self, text: str, target_language):
         """Translate text with google translate API."""
 
+        # google translate
         result = self.translate_client.translate(text, target_language)
         return result['translatedText']
+    
 
     def generate_translations(self, text: str) -> dict:
         """Generate translations for all supported languages."""
@@ -78,3 +81,5 @@ class TranslationEngine:
                 raise NotImplementedError(f"Translation engine not implemented yet.")
         
         return translations
+    
+
